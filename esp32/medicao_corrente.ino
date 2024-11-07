@@ -4,6 +4,7 @@
 
 const char* ssid = "SSID";       // Nome da rede Wi-Fi
 const char* password = "SENHA";  // Senha da rede Wi-Fi
+const char* serverUrl = "http://4.203.106.105:4000/insertData"; // URL do servidor web para envio dos dados
 
 const int sensorPin = 34;  // Pino ADC para o sensor SCT-013
 const int numSamples = 200;  // Número de amostras para cálculo RMS
@@ -12,9 +13,6 @@ const float adcMax = 4095.0;   // Valor máximo do ADC do ESP32 (12 bits)
 const float burdenResistor = 20.0;  // Resistor de carga (em ohms)
 const float sensitivity = 100.0;    // Sensibilidade do sensor (100A:50mA)
 
-// URL do servidor web para envio dos dados
-const char* serverUrl = "http://servidor-teste/dados";
-
 // Variáveis de conexão
 WiFiClient client;
 HTTPClient http;
@@ -22,7 +20,6 @@ HTTPClient http;
 // Estrutura de um nó da lista encadeada
 struct Node {
   float corrente;   // Armazena o valor de corrente lido
-  unsigned long timestamp;  // Armazena o horário da leitura (em milissegundos)
   Node* next;       // Aponta para o próximo nó
 };
 
@@ -34,7 +31,6 @@ Node* tail = NULL;
 void adicionarCorrente(float corrente, unsigned long timestamp) {
   Node* newNode = (Node*) malloc(sizeof(Node));  // Cria um novo nó
   newNode->corrente = corrente;
-  newNode->timestamp = timestamp;
   newNode->next = NULL;
   
   if (tail == NULL) {
@@ -67,11 +63,10 @@ void setup() {
 
 void loop() {
   float Irms = calcCurrentRMS();  // Calcular corrente RMS
-  unsigned long currentTime = millis();  // Capturar o tempo atual (em milissegundos)
-  
-  adicionarCorrente(Irms, currentTime);  // Armazena corrente e horário na lista temporária
+  unsigned long currentTime = millis();
+  adicionarCorrente(Irms);  // Armazena corrente na lista temporária
 
-  if (millis() % 60000 == 0) {    // Após 1 minuto, envia os dados
+  if (millis() % 5000 == 0) {    // Após 5 segundos, envia os dados
     enviarDadosServidor();        // Enviar todos os dados ao servidor web
     limparLista();                // Limpa a lista após o envio
   }
@@ -109,18 +104,22 @@ float calcCurrentRMS() {
 void enviarDadosServidor() {
   if (WiFi.status() == WL_CONNECTED) {  // Verifica se está conectado à rede
     http.begin(client, serverUrl);       // Inicia a conexão HTTP
-    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+    http.addHeader("Content-Type", "application/json");
 
     // Preparar os dados para envio
-    String httpRequestData = "correntes=";
+    StaticJsonDocument<512> doc;
+    JsonArray correnteArray = doc.createNestedArray("correntes");
     Node* temp = head;
     while (temp != NULL) {
-      httpRequestData += "{" + String(temp->corrente) + "," + String(temp->timestamp) + "},";
+      JsonObject correnteData = correnteArray.createNestedObject();
+      correnteData["corrente"] = temp->corrente;
       temp = temp->next;
     }
-    httpRequestData.remove(httpRequestData.length() - 1);  // Remove última vírgula
+    
+    String jsonData;
+    serializeJson(doc, jsonData);
 
-    int httpResponseCode = http.POST(httpRequestData);  // Envia os dados por POST
+    int httpResponseCode = http.POST(jsonData);
 
     // Verifica o código de resposta do servidor
     if (httpResponseCode > 0) {
