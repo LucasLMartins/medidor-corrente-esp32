@@ -3,8 +3,8 @@
 #include <stdlib.h>  // Biblioteca para malloc e free
 #include <ArduinoJson.h>
 
-const char* ssid = "SSID";       // Nome da rede Wi-Fi
-const char* password = "SENHA";  // Senha da rede Wi-Fi
+const char* ssid = "Moto E do pai";       // Nome da rede Wi-Fi
+const char* password = "lucao321";  // Senha da rede Wi-Fi
 const char* serverUrl = "http://4.203.106.105:4000/insertData"; // URL do servidor web para envio dos dados
 
 const int sensorPin = 34;  // Pino ADC para o sensor SCT-013
@@ -64,15 +64,16 @@ void setup() {
 
 void loop() {
   // float Irms = calcCurrentRMS();  // Calcular corrente RMS
-  float Irms = 1.55;
-  unsigned long currentTime = millis();
-  adicionarCorrente(Irms);  // Armazena corrente na lista temporária
+  //float Irms = 1.55;
+  //unsigned long currentTime = millis();
+  //adicionarCorrente(Irms);  // Armazena corrente na lista temporária
 
-  if (millis() % 5000 == 0) {    // Após 5 segundos, envia os dados
-    enviarDadosServidor();        // Enviar todos os dados ao servidor web
-    limparLista();                // Limpa a lista após o envio
-  }
-
+  //if (millis() % 5000 == 0) {    // Após 5 segundos, envia os dados
+  //  enviarDadosServidor();        // Enviar todos os dados ao servidor web
+  //  limparLista();                // Limpa a lista após o envio
+  //}
+  enviarDadosServidor();
+  Serial.print("teste de print");
   delay(1000);  // Leitura a cada segundo
 }
 
@@ -105,7 +106,7 @@ float calcCurrentRMS() {
 // Função para enviar os dados ao servidor web via HTTP POST
 void enviarDadosServidor() {
   if (WiFi.status() == WL_CONNECTED) {  // Verifica se está conectado à rede
-    http.begin(client, serverUrl);       // Inicia a conexão HTTP
+    http.begin(serverUrl);       // Inicia a conexão HTTP
     http.addHeader("Content-Type", "application/json");
 
     // Preparar os dados para envio
