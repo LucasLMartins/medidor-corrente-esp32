@@ -15,52 +15,35 @@ const port = 4000
 
 //app.get('*', (req,res) => res.sendFile('index.html' , { root : baseDir }))
 
+function insert(corrente) {
+    function formatDateTime(date) {
+        return date.toISOString().slice(0, 19).replace("T", " ")
+    }
+
+    const timestamp = new Date().setHours(new Date().getHours() - 3)
+
+    const obj = {
+        corrente: corrente,
+        timestamp: formatDateTime(new Date(timestamp))
+    }
+
+    database.query(
+        'INSERT INTO corrente_db.medicao (corrente, horario) VALUES (?,?)',
+        [obj.corrente, obj.timestamp],
+        (err) => {
+            if (err) {
+                console.log(err)
+            }
+        }
+    )
+}
+
 app.post('/insertData', (req, res) => {
-    // const correntes = req.body.correntes
+    const corrente = req.body.corrente
 
-    // if (!Array.isArray(correntes) || correntes.length !== 5) {
-    //     return res.status(400).json({ error: "Expected array of 5 corrente readings" });
-    // }
+    insert(corrente)
 
-    // const endTime = new Date()
-
-    // function formatDateTime(date) {
-    //     return date.toISOString().slice(0, 19).replace("T", " ");
-    // }
-
-    // const dataWithTimestamps = correntes.map((corrente, i) => {
-    //     const timestamp = new Date(endTime.getTime() - (4 - i) * 1000)
-
-    //     return {
-    //         corrente: corrente.corrente,
-    //         timestamp: formatDateTime(timestamp)
-    //     }
-    // })
-
-    // let completed = 0
-    // let errors = []
-
-    // dataWithTimestamps.forEach((e) => {
-    //     database.query(
-    //         'INSERT INTO corrente_db.medicao (corrente, horario) VALUES (?,?)',
-    //         [e.corrente, e.timestamp],
-    //         (err) => {
-    //             if (err) {
-    //                 errors.push(err)
-    //             }
-    //             completed++
-
-    //             if (completed === dataWithTimestamps.length) {
-    //                 if (errors.length > 0) {
-    //                     res.status(400).json({ error: "Some inserts failed", details: errors })
-    //                 } else {
-    //                     res.status(200).send('Sucesso')
-    //                 }
-    //             }
-    //         }
-    //     )
-    // })
-    console.log('chama fi')
+    res.status(200)
 })
 
 app.get('/getData', (req, res) => {
