@@ -3,8 +3,8 @@
 #include <stdlib.h>  // Biblioteca para malloc e free
 #include <ArduinoJson.h>
 
-const char* ssid = "SSID";       // Nome da rede Wi-Fi
-const char* password = "SENHA";  // Senha da rede Wi-Fi
+const char* ssid = "Moto E do pai";       // Nome da rede Wi-Fi
+const char* password = "lucao321";  // Senha da rede Wi-Fi
 const char* serverUrl = "http://4.203.106.105:4000/insertData"; // URL do servidor web para envio dos dados
 
 const int sensorPin = 34;  // Pino ADC para o sensor SCT-013
@@ -18,76 +18,6 @@ const float sensitivity = 100.0;    // Sensibilidade do sensor (100A:50mA)
 WiFiClient client;
 HTTPClient http;
 
-// Estrutura de um nó da lista encadeada
-struct Node {
-  float corrente;   // Armazena o valor de corrente lido
-  Node* next;       // Aponta para o próximo nó
-};
-
-// Ponteiros para o início e fim da lista encadeada
-Node* head = NULL;
-Node* tail = NULL;
-
-// Função para adicionar um novo valor à lista encadeada
-void adicionarCorrente(float corrente) {
-  Node* newNode = (Node*) malloc(sizeof(Node));  // Cria um novo nó
-  newNode->corrente = corrente;
-  newNode->next = NULL;
-  
-  if (tail == NULL) {
-    // Se a lista estiver vazia, o novo nó é o primeiro
-    head = newNode;
-    tail = newNode;
-  } else {
-    // Adiciona o novo nó ao final da lista
-    tail->next = newNode;
-    tail = newNode;
-  }
-}
-
-// Função para limpar a lista encadeada
-void limparLista() {
-  Node* temp = head;
-  while (temp != NULL) {
-    Node* next = temp->next;
-    free(temp);  // Libera a memória do nó atual
-    temp = next;
-  }
-  head = NULL;
-  tail = NULL;
-}
-
-void setup() {
-  Serial.begin(115200);
-  connectWiFi();  // Conectar ao Wi-Fi
-}
-
-void loop() {
-  // float Irms = calcCurrentRMS();  // Calcular corrente RMS
-  float Irms = 1.55;
-  unsigned long currentTime = millis();
-  adicionarCorrente(Irms);  // Armazena corrente na lista temporária
-
-  if (millis() % 5000 == 0) {    // Após 5 segundos, envia os dados
-    enviarDadosServidor();        // Enviar todos os dados ao servidor web
-    limparLista();                // Limpa a lista após o envio
-  }
-
-  delay(1000);  // Leitura a cada segundo
-}
-
-// Função para conectar ao Wi-Fi
-void connectWiFi() {
-  Serial.println("Conectando ao Wi-Fi...");
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.print(".");
-  }
-  Serial.println("\nWi-Fi conectado!");
-}
-
-// Função para calcular a corrente RMS
 float calcCurrentRMS() {
   long sumSquared = 0;  // Soma dos quadrados das leituras
   for (int i = 0; i < numSamples; i++) {
@@ -102,38 +32,51 @@ float calcCurrentRMS() {
   return sqrt(meanSquared);  // Retorna a corrente RMS
 }
 
+// Função para conectar ao Wi-Fi
+void connectWiFi() {
+  Serial.println("Conectando ao Wi-Fi...");
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.print(".");
+  }
+  Serial.println("\nWi-Fi conectado!");
+}
+
 // Função para enviar os dados ao servidor web via HTTP POST
-void enviarDadosServidor() {
+void enviarDadosServidor(float Irms) {
   if (WiFi.status() == WL_CONNECTED) {  // Verifica se está conectado à rede
-    http.begin(client, serverUrl);       // Inicia a conexão HTTP
+    http.begin(serverUrl);       // Inicia a conexão HTTP
     http.addHeader("Content-Type", "application/json");
 
     // Preparar os dados para envio
-    StaticJsonDocument<512> doc;
-    JsonArray correnteArray = doc.createNestedArray("correntes");
-    Node* temp = head;
-    while (temp != NULL) {
-      JsonObject correnteData = correnteArray.createNestedObject();
-      correnteData["corrente"] = temp->corrente;
-      temp = temp->next;
-    }
+    StaticJsonDocument<200> doc;
+    doc["corrente"] = Irms;
     
     String jsonData;
     serializeJson(doc, jsonData);
 
     int httpResponseCode = http.POST(jsonData);
 
-    // Verifica o código de resposta do servidor
-    if (httpResponseCode > 0) {
-      String response = http.getString();  // Recebe resposta do servidor
-      Serial.println("Resposta do servidor: " + response);
-    } else {
-      Serial.println("Erro ao enviar dados: " + String(httpResponseCode));
-    }
+    Serial.println("Mensagem enviada");
 
     http.end();  // Fecha a conexão HTTP
   } else {
     Serial.println("Wi-Fi desconectado, tentando reconectar...");
     connectWiFi();
   }
+}
+
+void setup() {
+  Serial.begin(115200);
+  connectWiFi();  // Conectar ao Wi-Fi
+}
+
+void loop() {
+  // float Irms = calcCurrentRMS();  // Calcular corrente RMS
+  float Irms = 1.55;
+
+  enviarDadosServidor(Irms);      // Enviar os dados ao servidor web
+  
+  delay(500);
 }
