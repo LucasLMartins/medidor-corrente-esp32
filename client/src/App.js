@@ -4,15 +4,13 @@ import { useState, useEffect } from 'react'
 import { api } from './api'
 import './App.css'
 
-const calculateAverage = (data) => {
-  const total = data.reduce((acc, item) => acc + item.corrente, 0)
-  return (total / data.length).toFixed(2)
-}
-
 function App() {
+  const [loading, setLoading] = useState(true)
   const [realTime, setRealTime] = useState(null)
   const [daily, setDaily] = useState(null)
   const [monthly, setMonthly] = useState(null)
+  const [peak, setPeak] = useState(null)
+  const [last24Hours, setLast24Hours] = useState(null)
   
   useEffect(() => {
     getStatistics()
@@ -33,6 +31,10 @@ function App() {
 
     setDaily(formatDaily)
     setMonthly(response.data.monthly)
+    setLast24Hours(response.data.last)
+    setPeak(response.data.peak)
+
+    setLoading(false)
   }
 
   async function fetchRealTime() {
@@ -47,7 +49,7 @@ function App() {
     return medio
   }
 
-  return (
+  if (loading === false) return (
     <div className='page'>
       <p className='title'>Consumo de energia</p>
       <div className='page-boxes'>
@@ -57,14 +59,14 @@ function App() {
           <p className='consumption'>{realTime ? `${realTime} kWh` : 'Carregando...'}</p>
         </div>
         <div className='box-container'>
-          <p>Consumo</p>
-          <p>diário médio</p>
-          <p className='consumption'>{media(daily).toFixed(2)} kWh</p>
+          <p>Consumo diário</p>
+          <p>mais alto</p>
+          <p className='consumption'>{peak.kWh.toFixed(2)} kWh</p>
         </div>
         <div className='box-container'>
           <p>Consumo</p>
-          <p>semanal médio</p>
-          <p className='consumption'>504 A</p>
+          <p>diário médio</p>
+          <p className='consumption'>{media(daily).toFixed(2)} kWh</p>
         </div>
         <div className='box-container'>
           <p>Consumo</p>
@@ -114,7 +116,33 @@ function App() {
           </div>
         </div>
       </div>
+
+      <div className='page-graphics'>
+        <div className='graphic-full'>
+          <div className='graphic-top'>
+            <p>Últimas 24 horas</p>
+          </div>
+          <div className='graphic-bottom'>
+            <ResponsiveContainer height={400} width='100%'>
+              <AreaChart data={last24Hours} margin={{ right: 55, left: 30 }}>
+                <CartesianGrid strokeDasharray="3 3"/>
+                <XAxis
+                  dataKey="hora"
+                  interval={2}
+                />
+                <YAxis />
+                <Tooltip />
+                <Area type="monotone" dataKey="kWh" stroke="#8884d8" fill="#8884d8" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
     </div>
+  )
+
+  return (
+    <p>Carregando...</p>
   )
 }
 

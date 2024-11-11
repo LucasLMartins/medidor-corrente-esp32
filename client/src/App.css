@@ -75,10 +75,26 @@ body{
     justify-content: space-between;
 }
 
+.page-graphics{
+    margin-top: 50px;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+}
+
 .graphic{
     border: 1px solid lightgray;
     border-radius: 10px;
     width: 49.3%;
+    padding: 25px;
+    box-sizing: border-box;
+}
+
+.graphic-full{
+    border: 1px solid lightgray;
+    border-radius: 10px;
+    width: 100%;
     padding: 25px;
     box-sizing: border-box;
 }

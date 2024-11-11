@@ -17,11 +17,11 @@ app.use('/realTime', realTime)
 const insertData = require('./routes/InsertData.js')
 app.use('/insertData', insertData)
 
-//const baseDir = `${__dirname}/build/`
+const baseDir = `${__dirname}/build/`
 
-//app.use(express.static(`${baseDir}`))
+app.use(express.static(`${baseDir}`))
 
-//app.get('*', (req,res) => res.sendFile('index.html' , { root : baseDir }))
+app.get('*', (req,res) => res.sendFile('index.html' , { root : baseDir }))
 
 // rodar o server
 app.listen(port, '0.0.0.0', () => {
