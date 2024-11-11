@@ -8,9 +8,6 @@ app.use(cors())
 
 const port = 4000
 
-const getData = require('./routes/GetData.js')
-app.use('/getData', getData)
-
 const statistics = require('./routes/Statistics.js')
 app.use('/statistics', statistics)
 
