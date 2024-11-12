@@ -25,7 +25,7 @@ float calcCurrentRMS() {
     float voltage = (value / adcMax) * voltageRef;  // Converter para tensão (0 a 3.3V)
     float current = (voltage - (voltageRef / 2.0)) / burdenResistor / sensitivity;  // Calcular corrente
     sumSquared += current * current;  // Somar quadrado da corrente
-    delay(1);  // Intervalo curto entre as leituras
+    delay(5);  // Intervalo curto entre as leituras
   }
 
   float meanSquared = sumSquared / numSamples;
@@ -78,5 +78,5 @@ void loop() {
 
   enviarDadosServidor(Irms);      // Enviar os dados ao servidor web
   
-  delay(5000);
+  delay(1);
 }
