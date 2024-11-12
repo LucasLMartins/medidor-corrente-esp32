@@ -13,7 +13,7 @@ function insert(corrente) {
         timestamp: formatDateTime(new Date(timestamp))
     }
 
-    database.query(
+    db.query(
         'INSERT INTO corrente_db.medicao (corrente, horario) VALUES (?,?)',
         [obj.corrente, obj.timestamp],
         (err) => {

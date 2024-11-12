@@ -7,12 +7,12 @@ const char* ssid = "Moto E do pai";       // Nome da rede Wi-Fi
 const char* password = "lucao321";  // Senha da rede Wi-Fi
 const char* serverUrl = "http://4.203.106.105:4000/insertData"; // URL do servidor web para envio dos dados
 
-const int sensorPin = 34;  // Pino ADC para o sensor SCT-013
+const int sensorPin = 23;  // Pino ADC para o sensor SCT-013
 const int numSamples = 200;  // Número de amostras para cálculo RMS
 const float voltageRef = 3.3;  // Tensão de referência do ESP32
 const float adcMax = 4095.0;   // Valor máximo do ADC do ESP32 (12 bits)
-const float burdenResistor = 20.0;  // Resistor de carga (em ohms)
-const float sensitivity = 100.0;    // Sensibilidade do sensor (100A:50mA)
+const float burdenResistor = 20.0;  // Resistor de carga (em ohms) SO FALTA ARRUMAR ISSO
+const float sensitivity = 30.0;    // Sensibilidade do sensor (100A:50mA)
 
 // Variáveis de conexão
 WiFiClient client;
@@ -78,5 +78,5 @@ void loop() {
 
   enviarDadosServidor(Irms);      // Enviar os dados ao servidor web
   
-  delay(500);
+  delay(5000);
 }
