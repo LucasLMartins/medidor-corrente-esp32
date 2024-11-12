@@ -11,7 +11,7 @@ const int sensorPin = 23;  // Pino ADC para o sensor SCT-013
 const int numSamples = 200;  // Número de amostras para cálculo RMS
 const float voltageRef = 3.3;  // Tensão de referência do ESP32
 const float adcMax = 4095.0;   // Valor máximo do ADC do ESP32 (12 bits)
-const float burdenResistor = 20.0;  // Resistor de carga (em ohms) SO FALTA ARRUMAR ISSO
+const float burdenResistor = 10.0;  // Resistor de carga (em ohms) SO FALTA ARRUMAR ISSO
 const float sensitivity = 30.0;    // Sensibilidade do sensor (100A:50mA)
 
 // Variáveis de conexão
