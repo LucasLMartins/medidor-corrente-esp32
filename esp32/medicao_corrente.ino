@@ -11,8 +11,8 @@ const int sensorPin = 23;  // Pino ADC para o sensor SCT-013
 const int numSamples = 200;  // Número de amostras para cálculo RMS
 const float voltageRef = 3.3;  // Tensão de referência do ESP32
 const float adcMax = 4095.0;   // Valor máximo do ADC do ESP32 (12 bits)
-const float burdenResistor = 10.0;  // Resistor de carga (em ohms) SO FALTA ARRUMAR ISSO
-const float sensitivity = 30.0;    // Sensibilidade do sensor (100A:50mA)
+const float burdenResistor = 33.0;  // Resistor de carga (em ohms) 
+const float sensitivity = 30.0;    // Sensibilidade do sensor (30A)
 
 // Variáveis de conexão
 WiFiClient client;
@@ -22,6 +22,7 @@ float calcCurrentRMS() {
   long sumSquared = 0;  // Soma dos quadrados das leituras
   for (int i = 0; i < numSamples; i++) {
     int value = analogRead(sensorPin);  // Leitura do sinal
+
     float voltage = (value / adcMax) * voltageRef;  // Converter para tensão (0 a 3.3V)
     float current = (voltage - (voltageRef / 2.0)) / burdenResistor / sensitivity;  // Calcular corrente
     sumSquared += current * current;  // Somar quadrado da corrente
@@ -69,14 +70,16 @@ void enviarDadosServidor(float Irms) {
 
 void setup() {
   Serial.begin(115200);
-  connectWiFi();  // Conectar ao Wi-Fi
+  //connectWiFi();  // Conectar ao Wi-Fi
 }
 
 void loop() {
-  // float Irms = calcCurrentRMS();  // Calcular corrente RMS
-  float Irms = 1.55;
+  float Irms = calcCurrentRMS();  // Calcular corrente RMS
+  Serial.print("Valor de corrente lido: ");
+  Serial.println(Irms);  // Exibe a corrente RMS
+  //float Irms = 1.55;
 
-  enviarDadosServidor(Irms);      // Enviar os dados ao servidor web
+  //enviarDadosServidor(Irms);      // Enviar os dados ao servidor web
   
-  delay(1);
+  delay(1000);
 }
