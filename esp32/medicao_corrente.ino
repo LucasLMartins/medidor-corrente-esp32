@@ -7,7 +7,7 @@ const char* ssid = "Moto E do pai";       // Nome da rede Wi-Fi
 const char* password = "lucao321";  // Senha da rede Wi-Fi
 const char* serverUrl = "http://4.203.106.105:4000/insertData"; // URL do servidor web para envio dos dados
 
-const int sensorPin = 23;  // Pino ADC para o sensor SCT-013
+const int sensorPin = 32;  // Pino ADC para o sensor SCT-013
 const int numSamples = 200;  // Número de amostras para cálculo RMS
 const float voltageRef = 3.3;  // Tensão de referência do ESP32
 const float adcMax = 4095.0;   // Valor máximo do ADC do ESP32 (12 bits)
@@ -22,7 +22,6 @@ float calcCurrentRMS() {
   long sumSquared = 0;  // Soma dos quadrados das leituras
   for (int i = 0; i < numSamples; i++) {
     int value = analogRead(sensorPin);  // Leitura do sinal
-
     float voltage = (value / adcMax) * voltageRef;  // Converter para tensão (0 a 3.3V)
     float current = (voltage - (voltageRef / 2.0)) / burdenResistor / sensitivity;  // Calcular corrente
     sumSquared += current * current;  // Somar quadrado da corrente
