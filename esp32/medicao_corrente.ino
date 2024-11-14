@@ -22,6 +22,12 @@ float calcCurrentRMS() {
   long sumSquared = 0;  // Soma dos quadrados das leituras
   for (int i = 0; i < numSamples; i++) {
     int value = analogRead(sensorPin);  // Leitura do sinal
+    if(value > 0){
+    Serial.print("Valor lido do ADC: ");
+    Serial.println(value);  // Exibe a leitura do sensor (ADC)
+
+    }
+    
     float voltage = (value / adcMax) * voltageRef;  // Converter para tensão (0 a 3.3V)
     float current = (voltage - (voltageRef / 2.0)) / burdenResistor / sensitivity;  // Calcular corrente
     sumSquared += current * current;  // Somar quadrado da corrente
@@ -74,11 +80,9 @@ void setup() {
 
 void loop() {
   float Irms = calcCurrentRMS();  // Calcular corrente RMS
-  Serial.print("Valor de corrente lido: ");
-  Serial.println(Irms);  // Exibe a corrente RMS
   //float Irms = 1.55;
 
-  //enviarDadosServidor(Irms);      // Enviar os dados ao servidor web
+  enviarDadosServidor(Irms);      // Enviar os dados ao servidor web
   
   delay(1000);
 }
